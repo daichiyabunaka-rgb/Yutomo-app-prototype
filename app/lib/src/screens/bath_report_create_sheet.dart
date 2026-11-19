@@ -6,9 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import '../services/app_state.dart';
 import '../services/icon_service.dart';
 
-/// ゆずりあい・交換の登録シート（FR-7-1相当）。
-/// kind: 'give'（ゆずります）/ 'wanted'（探しています）/ 'trade'（交換します）
-Future<void> showBathGoodsExchangeCreateSheet(BuildContext context) {
+/// 近況報告の登録シート（FR-7-1相当）。
+/// kind: 'shoot'（撮影）/ 'post'（つぶやき）/ 'event'（イベント）
+Future<void> showBathReportCreateSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -27,8 +27,8 @@ class _CreateSheetState extends State<_CreateSheet> {
   final _itemDescription = TextEditingController();
   final _areaName = TextEditingController();
   final _detail = TextEditingController();
-  String _kind = 'give';
-  String? _photoPath; // 選択した投稿写真（null=未選択, ''=解除）
+  String _kind = 'shoot';
+  String? _photoPath; // 選択した報告写真（null=未選択, ''=解除）
   bool _submitting = false;
 
   @override
@@ -50,7 +50,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     if (!_isValid || _submitting) return;
     setState(() => _submitting = true);
     try {
-      await appState.registerBathGoodsExchange(
+      await appState.registerBathReport(
         kind: _kind,
         itemDescription: _itemDescription.text.trim(),
         areaName: _areaName.text.trim(),
@@ -63,7 +63,7 @@ class _CreateSheetState extends State<_CreateSheet> {
         setState(() => _submitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('登録に失敗しました。通信状況を確認してください'),
+            content: Text('報告に失敗しました。通信状況を確認してください'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -74,7 +74,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('登録しました。近くのユーザーに表示されます'),
+        content: Text('報告しました。近くのユーザーに表示されます'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -92,26 +92,26 @@ class _CreateSheetState extends State<_CreateSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('ゆずりあい・交換を登録する',
+            Text('近況報告を投稿する',
                 style: theme.textTheme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             SegmentedButton<String>(
               segments: const [
                 ButtonSegment(
-                  value: 'give',
-                  icon: Icon(Icons.redeem),
-                  label: Text('ゆずります'),
+                  value: 'shoot',
+                  icon: Icon(Icons.photo_camera),
+                  label: Text('撮影'),
                 ),
                 ButtonSegment(
-                  value: 'wanted',
-                  icon: Icon(Icons.search),
-                  label: Text('探してます'),
+                  value: 'post',
+                  icon: Icon(Icons.chat_bubble_outline),
+                  label: Text('つぶやき'),
                 ),
                 ButtonSegment(
-                  value: 'trade',
-                  icon: Icon(Icons.swap_horiz),
-                  label: Text('交換します'),
+                  value: 'event',
+                  icon: Icon(Icons.celebration),
+                  label: Text('イベント'),
                 ),
               ],
               selected: {_kind},
@@ -119,14 +119,14 @@ class _CreateSheetState extends State<_CreateSheet> {
             ),
             const SizedBox(height: 4),
             Text(
-              _kind == 'give'
-                  ? '使わなくなったサウナグッズをゆずる場合の登録です。\n'
-                      '※金銭のやりとりは禁止です。受け渡しは銭湯の入り口前や公共の場で行ってください。'
-                  : _kind == 'wanted'
-                      ? '探しているサウナグッズの登録です。\n'
-                          '※個人の住所・連絡先は記入しないでください。DMでやりとりしましょう。'
-                      : 'サウナグッズの交換の登録です。\n'
-                          '※金銭のやりとりは禁止です。同価値での交換を前提とし、条件はDMで相談してください。',
+              _kind == 'shoot'
+                  ? 'サウナ飯・サウナ帽子・施設の写真の報告です。\n'
+                      '※他人が写る画像は許諾を得たものだけ投稿してください。'
+                  : _kind == 'post'
+                      ? '近況・ひとことのつぶやきです。\n'
+                          '※ととのいや通いの近況など、サウナ仲間に伝えたいことを報告しましょう。'
+                      : '湯めぐり会・オフ会・イベントの報告です。\n'
+                          '※主催者・参加者のルールと許諾を守ってください。',
               style: theme.textTheme.labelSmall!
                   .copyWith(color: Colors.grey.shade600),
             ),
@@ -135,16 +135,16 @@ class _CreateSheetState extends State<_CreateSheet> {
               controller: _itemDescription,
               maxLength: 40,
               decoration: const InputDecoration(
-                labelText: 'グッズの内容',
-                hintText: '例: サウナハット（手編み・中古）',
+                labelText: 'タイトル（できごと・サウナ飯など）',
+                hintText: '例: 岩盤のサウナで QR のバジル豚定食',
                 border: OutlineInputBorder(),
                 counterText: '',
               ),
             ),
             const SizedBox(height: 12),
 
-            // ------------------------------ 投稿写真（任意）
-            Text('写真（任意。状態が伝わる写真を）',
+            // ------------------------------ 報告写真（任意）
+            Text('写真（任意。報告の画像を）',
                 style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
             Row(
@@ -185,10 +185,10 @@ class _CreateSheetState extends State<_CreateSheet> {
             TextField(
               controller: _areaName,
               maxLength: 30,
-              decoration: InputDecoration(
-                labelText: _kind == 'wanted' ? '探している地域・イベント名' : '受け渡し希望の地域・イベント名',
-                hintText: '例: ○○市周辺 / ○○銭湯の入り口前',
-                border: const OutlineInputBorder(),
+              decoration: const InputDecoration(
+                labelText: '場所',
+                hintText: '例: ○○銭湯 / ○○サウナ',
+                border: OutlineInputBorder(),
                 counterText: '',
               ),
             ),
@@ -198,8 +198,8 @@ class _CreateSheetState extends State<_CreateSheet> {
               maxLines: 3,
               maxLength: 200,
               decoration: const InputDecoration(
-                labelText: '状態・条件・受け渡し方法など',
-                hintText: '例: 洗浄済み・2回使用。○○銭湯の入り口前で受け渡しできます',
+                labelText: '近況・ハイライトなど',
+                hintText: '例: 水風呂の気持ちよさが最高でした。今度一緒に行きませんか',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -210,7 +210,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                 onPressed: (_isValid && !_submitting) ? _submit : null,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 14),
-                  child: Text('登録する'),
+                  child: Text('報告する'),
                 ),
               ),
             ),

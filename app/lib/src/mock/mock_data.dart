@@ -291,7 +291,7 @@ List<Recruitment> seedRecruitments(DateTime now, List<AppUser> generalUsers) {
   ];
 }
 
-/// ゆずりあい・交換のシード。anchor（現在地）からの相対距離で配置する。
+/// 近況報告のシード。anchor（現在地）からの相対距離で配置する。
 /// id が 'cx-seed-' 始まりのものは GPS 更新のたびに再配置される
 /// （AppState.applyGps を参照）。
 class _ExchangeSeedSpec {
@@ -313,11 +313,11 @@ const List<_ExchangeSeedSpec> _exchangeSeedSpecs = [
   _ExchangeSeedSpec(
     'cx-seed-1',
     'u-goods-kyo',
-    'give',
-    'サウナハット（使用済み・洗浄済み）',
+    'shoot',
+    '岩盤浴の後のバジル豚定食を撮影しました',
     '銭湯 桜の湯 周辺',
-    '手編みのものが増えたので1個ゆずります。'
-        '手渡し前提です。',
+    'サウナ帰りの定食が最高でした。'
+        '同じ組み合わせが好きな方と交流したいです。',
     0.3,
     -0.6,
     Duration(hours: 2),
@@ -325,11 +325,11 @@ const List<_ExchangeSeedSpec> _exchangeSeedSpecs = [
   _ExchangeSeedSpec(
     'cx-seed-2',
     'u-mizuburo-sora',
-    'wanted',
-    'サウナ用ロングマットを探しています',
+    'post',
+    '今週末は新しい銭湯を開拓する予定です',
     '駅前広場 周辺',
-    'バスマットの長めのものを探しています。不要グッズとの'
-        '交換の対応も可能です。DMお待ちしています。',
+    '気温が下がってきたので湯めぐりに最適な季節です。'
+        'おすすめの銭湯があれば教えてください。',
     -0.2,
     0.8,
     Duration(hours: 5),
@@ -337,23 +337,23 @@ const List<_ExchangeSeedSpec> _exchangeSeedSpecs = [
   _ExchangeSeedSpec(
     'cx-seed-3',
     'u-sauna-akira',
-    'trade',
-    'サウナ用アロマオイルと バスタオルを交換します',
+    'event',
+    '朝活サウナのオフ会に参加してきました',
     '市役所裏の公園 周辺',
-    '香りの好みが変わったので交換希望です。状態は写真で'
-        '送ります。公共の場所で受け渡しできます。',
+    '常連さんと入浴後の休憩で情報交換ができて'
+        '楽しかったです。次回も参加予定です。',
     -0.9,
     -0.3,
     Duration(hours: 26),
   ),
 ];
 
-List<BathGoodsExchange> buildSeedBathGoodsExchanges(
+List<BathReport> buildSeedBathReports(
     DateTime now, double anchorLat, double anchorLng) {
   final cos = (anchorLat * math.pi / 180.0).abs().clamp(0.01, 1.0);
   return [
     for (final s in _exchangeSeedSpecs)
-      BathGoodsExchange(
+      BathReport(
         id: s.id,
         posterId: s.posterId,
         kind: s.kind,

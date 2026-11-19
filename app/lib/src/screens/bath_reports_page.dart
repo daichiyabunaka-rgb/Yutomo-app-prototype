@@ -6,37 +6,38 @@ import '../models.dart';
 import '../services/app_state.dart';
 import '../util/format.dart';
 import 'chat_screen.dart';
-import 'bath_goods_exchange_create_sheet.dart';
+import 'bath_report_create_sheet.dart';
 import 'user_detail_screen.dart';
 import 'widgets.dart';
 
-/// 「ゆずりあい・交換」タブ: サウナグッズのゆずり合い・交換の情報を近隣で
-/// 共有する（FR-7-1〜7-4 相当）。
-/// 金銭取引は本アプリでは行わない（銭湯の入り口前・公共の場での受け渡し前提）。
-class BathGoodsExchangesPage extends StatefulWidget {
-  const BathGoodsExchangesPage({super.key});
+/// 「近況報告」タブ: サウナ・銭湯の近況・撮影・イベントの報告を近隣で共有する
+/// （FR-7-1〜7-4 相当）。
+/// kind: 'shoot'（撮影）/ 'post'（つぶやき）/ 'event'（イベント）。
+/// 他人が写る画像は許諾を確認できたもののみ投稿する。
+class BathReportsPage extends StatefulWidget {
+  const BathReportsPage({super.key});
 
   @override
-  State<BathGoodsExchangesPage> createState() => _BathGoodsExchangesPageState();
+  State<BathReportsPage> createState() => _BathReportsPageState();
 }
 
-class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
-  String _filter = 'all'; // 'all' | 'give' | 'wanted' | 'trade'
+class _BathReportsPageState extends State<BathReportsPage> {
+  String _filter = 'all'; // 'all' | 'shoot' | 'post' | 'event'
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showBathGoodsExchangeCreateSheet(context),
-        icon: const Icon(Icons.swap_horiz),
-        label: const Text('登録する'),
+        onPressed: () => showBathReportCreateSheet(context),
+        icon: const Icon(Icons.photo_camera),
+        label: const Text('報告する'),
       ),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: appState,
           builder: (context, _) {
-            final all = appState.partsExchanges;
+            final all = appState.bathReports;
             final items = _filter == 'all'
                 ? all
                 : all.where((p) => p.kind == _filter).toList();
@@ -47,7 +48,7 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   Text(
-                    'ゆずりあい・交換',
+                    '近況報告',
                     style: theme.textTheme.titleLarge!.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -56,9 +57,9 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
                   SegmentedButton<String>(
                     segments: const [
                       ButtonSegment(value: 'all', label: Text('すべて')),
-                      ButtonSegment(value: 'give', label: Text('ゆずります')),
-                      ButtonSegment(value: 'wanted', label: Text('探してます')),
-                      ButtonSegment(value: 'trade', label: Text('交換')),
+                      ButtonSegment(value: 'shoot', label: Text('撮影')),
+                      ButtonSegment(value: 'post', label: Text('つぶやき')),
+                      ButtonSegment(value: 'event', label: Text('イベント')),
                     ],
                     selected: {_filter},
                     onSelectionChanged: (s) =>
@@ -66,16 +67,15 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '近くで登録された情報を近い順に表示します。使わなくなったサウナハットや'
-                    'バス用品のゆずり合い・交換の募集をして、同じ趣味の仲間と'
-                    'つながりましょう。',
+                    '近くのサウナ仲間の近況・サウナ飯や施設の撮影・湯めぐり会の'
+                    '報告を近い順に表示します。報告を見て、'
+                    '同じ趣味の仲間とつながりましょう。',
                     style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '※金銭のやりとりは禁止です（フリマアプリを利用してください）。'
-                    '受け渡しはイベント会場や公共の場で行い、'
-                    '初めて会う場合は人目のある場所を選んでください。',
+                    '※他人が写る画像は許諾を得たものだけ投稿してください。'
+                    '施設の撮影規約を守ってください。違反は削除・通報の対象になります。',
                     style: theme.textTheme.labelSmall!.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -85,14 +85,14 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
                       padding: const EdgeInsets.all(32),
                       child: Center(
                         child: Text(
-                          '近くに登録はまだありません。\n'
-                          '「登録する」から最初の登録をお願いします。',
+                          '近くに報告はまだありません。\n'
+                          '「報告する」から最初の近況報告をお願いします。',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall,
                         ),
                       ),
                     ),
-                  for (final d in items) _exchangeCard(context, d),
+                  for (final d in items) _reportCard(context, d),
                   const SizedBox(height: 80),
                 ],
               ),
@@ -103,25 +103,26 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
     );
   }
 
-  Widget _exchangeCard(BuildContext context, BathGoodsExchange d) {
+  Widget _reportCard(BuildContext context, BathReport d) {
     final theme = Theme.of(context);
     final poster = appState.userById(d.posterId);
     final isMine = d.posterId == appState.me!.id;
     final now = DateTime.now();
-    final giveColor = Colors.teal.shade700;
-    final wantedColor = Colors.red.shade700;
-    final tradeColor = Colors.indigo.shade700;
-    final color =
-        d.isGive ? giveColor : (d.isWanted ? wantedColor : tradeColor);
-    final bg = d.isGive
+    final shootColor = Colors.teal.shade700;
+    final postColor = Colors.blue.shade700;
+    final eventColor = Colors.deepPurple.shade700;
+    final color = d.isShoot
+        ? shootColor
+        : (d.isPost ? postColor : eventColor);
+    final bg = d.isShoot
         ? Colors.teal.shade50
-        : (d.isWanted ? Colors.red.shade50 : Colors.indigo.shade50);
-    final border = d.isGive
+        : (d.isPost ? Colors.blue.shade50 : Colors.deepPurple.shade50);
+    final border = d.isShoot
         ? Colors.teal.shade200
-        : (d.isWanted ? Colors.red.shade200 : Colors.indigo.shade200);
-    final label = d.isGive
-        ? 'ゆずります'
-        : (d.isWanted ? '探してます' : '交換');
+        : (d.isPost ? Colors.blue.shade200 : Colors.deepPurple.shade200);
+    final label = d.isShoot
+        ? '撮影'
+        : (d.isPost ? 'つぶやき' : 'イベント');
     return Card(
       margin: const EdgeInsets.only(top: 10),
       child: Padding(
@@ -178,8 +179,8 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
                 Icon(Icons.schedule, size: 14, color: Colors.grey.shade600),
                 const SizedBox(width: 2),
                 Text(
-                  '${elapsedLabel(d.createdAt, now)}の登録 / '
-                  '${appState.partsExchangeDistanceLabel(d)}',
+                  '${elapsedLabel(d.createdAt, now)}の報告 / '
+                  '${appState.bathReportDistanceLabel(d)}',
                   style: theme.textTheme.bodySmall,
                 ),
               ],
@@ -248,14 +249,14 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
     );
   }
 
-  bool _hasPhoto(BathGoodsExchange d) {
+  bool _hasPhoto(BathReport d) {
     final p = d.photoPath ?? '';
     if (p.isEmpty) return false;
     if (p.startsWith('http')) return true;
     return File(p).existsSync();
   }
 
-  Widget _photoImage(BathGoodsExchange d, double height) {
+  Widget _photoImage(BathReport d, double height) {
     final p = d.photoPath!;
     final Widget image;
     if (p.startsWith('http')) {
@@ -275,7 +276,7 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
   }
 
   /// 写真を全画面で見る
-  void _showPhoto(BuildContext context, BathGoodsExchange d) {
+  void _showPhoto(BuildContext context, BathReport d) {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => Dialog(
@@ -289,14 +290,14 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
     );
   }
 
-  Future<void> _confirmClose(BuildContext context, BathGoodsExchange d) async {
+  Future<void> _confirmClose(BuildContext context, BathReport d) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('完了にしますか？'),
         content: const Text(
-          '受け渡し・交換が成立した場合に設定します。'
-          '完了にした登録は一覧から表示されなくなります。',
+          '報告を一覧から外す場合に設定します。'
+          '完了にした報告は一覧から表示されなくなります。',
         ),
         actions: [
           TextButton(
@@ -311,7 +312,7 @@ class _BathGoodsExchangesPageState extends State<BathGoodsExchangesPage> {
       ),
     );
     if (confirmed != true) return;
-    await appState.closeBathGoodsExchange(d.id);
+    await appState.closeBathReport(d.id);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

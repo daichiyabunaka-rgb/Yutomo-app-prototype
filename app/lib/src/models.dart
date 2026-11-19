@@ -412,25 +412,25 @@ class CommunityEvent {
   }
 }
 
-/// サウナグッズの「ゆずりあい・交換」掲示板（近隣での情報共有）。
-/// kind: 'give'   = サウナグッズをゆずります
-///       'wanted' = サウナグッズを探しています
-///       'trade'  = 交換します
-/// 金銭取引は行わない（銭湯の入り口前・駅前広場での受け渡し・ゆずり合い前提）。
-class BathGoodsExchange {
+/// サウナ・銭湯の「近況報告」掲示板（近隣での近況・写真・イベント報告の共有）。
+/// kind: 'shoot' = 撮影（サウナ飯・サウナ帽子・施設の写真の報告）
+///       'post'  = つぶやき（近況・ひとことの報告）
+///       'event' = イベント（湯めぐり会・オフ会等の報告）
+/// 他人が写る画像は許諾を確認できたもののみ投稿する。
+class BathReport {
   final String id;
   final String posterId;
-  final String kind; // 'give' | 'wanted' | 'trade'
-  final String itemDescription; // グッズ名（サウナハット・バスマット・タオル等の状態など）
-  final String areaName; // 受け渡し希望地域やイベント名
-  final String detail; // 状態・受け渡し方法の自由記述
+  final String kind; // 'shoot' | 'post' | 'event'
+  final String itemDescription; // タイトル（できごと・サウナ飯など）
+  final String areaName; // 場所（銭湯・サウナ・施設名）
+  final String detail; // 近況・ハイライトの自由記述
   final String? photoPath; // 投稿写真（端末内パス or 公開URL）
   final double lat;
   final double lng;
   final DateTime createdAt;
-  bool closed; // 完了（受け渡し・交換が成立した等）
+  bool closed; // 完了（一覧から非表示にした）
 
-  BathGoodsExchange({
+  BathReport({
     required this.id,
     required this.posterId,
     required this.kind,
@@ -444,14 +444,14 @@ class BathGoodsExchange {
     this.closed = false,
   });
 
-  /// ゆずります
-  bool get isGive => kind == 'give';
+  /// 撮影の報告
+  bool get isShoot => kind == 'shoot';
 
-  /// 探しています
-  bool get isWanted => kind == 'wanted';
+  /// つぶやき（近況・ひとこと）
+  bool get isPost => kind == 'post';
 
-  /// 交換します
-  bool get isTrade => kind == 'trade';
+  /// イベントの報告
+  bool get isEvent => kind == 'event';
 }
 
 class ChatMessage {

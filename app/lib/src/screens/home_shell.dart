@@ -4,10 +4,10 @@ import 'communities_page.dart';
 import 'explore_page.dart';
 import 'my_page.dart';
 import 'near_page.dart';
-import 'bath_goods_exchanges_page.dart';
+import 'bath_reports_page.dart';
 import 'rooms_page.dart';
 
-/// ホーム: 近く / 部屋 / コミュニティ / ゆずりあい / 探す / マイページ（仕様書 8 章参照）
+/// ホーム: 近く / 部屋 / コミュニティ / 近況報告 / 探す / マイページ（仕様書 8 章参照）
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -27,7 +27,7 @@ class _HomeShellState extends State<HomeShell> {
           NearPage(),
           RoomsPage(),
           CommunitiesPage(),
-          BathGoodsExchangesPage(),
+          BathReportsPage(),
           ExplorePage(),
           MyPage(),
         ],
@@ -52,9 +52,9 @@ class _HomeShellState extends State<HomeShell> {
             label: 'コミュニティ',
           ),
           NavigationDestination(
-            icon: Icon(Icons.swap_horiz_outlined),
-            selectedIcon: Icon(Icons.swap_horiz),
-            label: 'ゆずりあい',
+            icon: Icon(Icons.photo_camera_outlined),
+            selectedIcon: Icon(Icons.photo_camera),
+            label: '近況報告',
           ),
           NavigationDestination(
             icon: Icon(Icons.search),

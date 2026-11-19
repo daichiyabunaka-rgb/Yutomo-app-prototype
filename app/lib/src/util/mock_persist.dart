@@ -167,7 +167,7 @@ CommunityEvent? communityEventFromMap(Map<String, dynamic> m) {
   }
 }
 
-Map<String, dynamic> partsExchangeToMap(BathGoodsExchange p) => {
+Map<String, dynamic> bathReportToMap(BathReport p) => {
       'id': p.id,
       'posterId': p.posterId,
       'kind': p.kind,
@@ -181,9 +181,9 @@ Map<String, dynamic> partsExchangeToMap(BathGoodsExchange p) => {
       'closed': p.closed,
     };
 
-BathGoodsExchange? partsExchangeFromMap(Map<String, dynamic> m) {
+BathReport? bathReportFromMap(Map<String, dynamic> m) {
   try {
-    final cat = BathGoodsExchange(
+    final cat = BathReport(
       id: m['id'] as String,
       posterId: m['posterId'] as String,
       kind: m['kind'] as String,
@@ -253,11 +253,11 @@ Map<String, dynamic> pruneSnapshotToOwner(
       .where((e) => e != null && communityIds.contains(e.communityId))
       .cast<CommunityEvent>()
       .toList();
-  final cats = ((snapshot['partsExchanges'] as List?) ?? const [])
+  final cats = ((snapshot['bathReports'] as List?) ?? const [])
       .map((e) => e as Map<String, dynamic>)
-      .map(partsExchangeFromMap)
+      .map(bathReportFromMap)
       .where((d) => d != null && d.posterId == myId)
-      .cast<BathGoodsExchange>()
+      .cast<BathReport>()
       .toList();
   return {
     'recruitments': recs.map(recruitmentToMap).toList(),
@@ -266,6 +266,6 @@ Map<String, dynamic> pruneSnapshotToOwner(
     'messages': messages.map(chatMessageToMap).toList(),
     'communities': communities.map(communityToMap).toList(),
     'events': events.map(communityEventToMap).toList(),
-    'partsExchanges': cats.map(partsExchangeToMap).toList(),
+    'bathReports': cats.map(bathReportToMap).toList(),
   };
 }
